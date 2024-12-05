@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+
+<?import javafx.scene.layout.HBox?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.guiex1.controller.MakeFriendsController"
+            prefWidth="1200" prefHeight="900"
+            stylesheets="/com/example/guiex1/css/make-friends.css">
+
+    <!-- Top Navigation Bar -->
+    <top>
+        <HBox spacing="15" style="-fx-alignment: center-left; -fx-padding: 10; -fx-background-color: #37474f;">
+            <!-- Back Arrow -->
+            <Button fx:id="backArrow" styleClass="back-arrow"/>
+            <Label text="Make Friends" styleClass="header-title"/>
+        </HBox>
+    </top>
+
+    <!-- Invitations Section -->
+    <center>
+        <VBox spacing="30" styleClass="main-content">
+            <!-- Friend Invites -->
+            <VBox spacing="20">
+                <Label text="Friend Invites" styleClass="section-title"/>
+                <FlowPane fx:id="invitesContainer" styleClass="card-container"/>
+            </VBox>
+
+            <!-- People You May Know -->
+            <VBox spacing="20">
+                <Label text="People You May Know" styleClass="section-title"/>
+                <FlowPane fx:id="nonFriendsContainer" styleClass="card-container"/>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

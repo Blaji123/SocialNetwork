@@ -1,0 +1,32 @@
+/* styles.css */
+
+.root {
+    -fx-background-color: #2b2b2b;
+}
+
+#formContainer {
+    -fx-background-color: #3c3f41;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.5, 0, 1);
+}
+
+.button {
+    -fx-font-size: 14px;
+    -fx-font-family: Arial;
+    -fx-background-color: #007acc;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #005fa3;
+}
+
+.button:pressed {
+    -fx-background-color: #004080;
+}

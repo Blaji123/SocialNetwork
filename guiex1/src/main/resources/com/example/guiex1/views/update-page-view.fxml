@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<?import java.net.URL?>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.guiex1.controller.UpdatePageController"
+           prefWidth="1200" prefHeight="900">
+    <stylesheets>
+        <URL value="@../css/update-page.css"/>
+    </stylesheets>
+
+    <!-- Back Button -->
+        <HBox spacing="15" styleClass="navbar">
+            <!-- Back Button -->
+            <Button fx:id="backButton" styleClass="back-arrow"/>
+            <Label text="Profile" styleClass="navbar-title"/>
+        </HBox>
+
+    <!-- Main Content Container -->
+    <VBox fx:id="formContainer" spacing="20" alignment="center" maxWidth="450" maxHeight="700">
+        <!-- Profile Image -->
+        <ImageView fitWidth="180" fitHeight="180" preserveRatio="true" smooth="true">
+            <Image url="@../images/logo.png" />
+        </ImageView>
+
+        <!-- Title -->
+        <Label text="Update Profile" styleClass="update-title"/>
+
+        <!-- Input Fields -->
+        <TextField fx:id="firstNameField" promptText="First Name" styleClass="text-field"/>
+        <TextField fx:id="lastNameField" promptText="Last Name" styleClass="text-field"/>
+        <TextField fx:id="emailField" promptText="Email" styleClass="text-field"/>
+
+        <!-- Action Buttons -->
+        <HBox spacing="20" alignment="center">
+            <Button fx:id="updateButton" text="Update" styleClass="button"/>
+            <Button fx:id="deleteButton" text="Delete Account" styleClass="delete-button"/>
+        </HBox>
+    </VBox>
+</StackPane>

@@ -1,0 +1,96 @@
+/* General Background */
+.root {
+    -fx-background-color: #f5f5f5;
+}
+
+/* Navbar Styles */
+.navbar {
+    -fx-background-color: #2b3e50;
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+
+.navbar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 5 10;
+    -fx-cursor: hand;
+}
+
+.navbar-button:hover {
+    -fx-background-color: #3c5165;
+}
+
+.logo-button {
+    -fx-padding: 0;
+}
+
+.search-bar {
+    -fx-background-radius: 15;
+    -fx-padding: 5 10;
+    -fx-prompt-text-fill: #aaa;
+    -fx-background-color: #fff;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 15;
+    -fx-max-width: 300px;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: #3c5165;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    -fx-background-color: #2b3e50;
+    -fx-padding: 20;
+    -fx-alignment: top-center;
+}
+
+.profile-name {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-button {
+    -fx-background-color: #3c5165;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #4a637a;
+}
+
+/* Main Content */
+.main-content {
+    -fx-padding: 20;
+    -fx-alignment: top-center;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-text-fill: #2b3e50;
+    -fx-font-weight: bold;
+}
+
+.placeholder-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #555;
+}
+
+.logo-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}

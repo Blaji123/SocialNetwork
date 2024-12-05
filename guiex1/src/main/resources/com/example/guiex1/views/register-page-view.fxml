@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+
+<?import java.net.URL?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.guiex1.controller.RegisterPageController"
+           prefWidth="1200" prefHeight="900">
+    <stylesheets>
+        <URL value="@../css/register-page.css"/>
+    </stylesheets>
+
+    <VBox fx:id="formContainer" spacing="15" alignment="center" maxWidth="350" maxHeight="700">
+
+        <ImageView fitWidth="180" fitHeight="180" preserveRatio="true" smooth="true">
+            <Image url="@../images/logo.png" />
+        </ImageView>
+
+        <Label text="Register" style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;" />
+
+        <TextField fx:id="firstNameField" promptText="First Name" prefWidth="300" />
+        <TextField fx:id="lastNameField" promptText="Last Name" prefWidth="300" />
+        <TextField fx:id="emailField" promptText="Email" prefWidth="300" />
+        <PasswordField fx:id="passwordField" promptText="Password" prefWidth="300" />
+
+        <!-- Note for password rules -->
+        <Label fx:id="passwordNote" text="Password must be at least 8 characters, include an uppercase letter, a digit, and a special character."
+               style="-fx-font-size: 12px; -fx-text-fill: lightgray; -fx-font-style: italic;" wrapText="true" visible="false" />
+
+        <Button fx:id="registerButton" text="Register" prefWidth="300" />
+
+        <!-- Login Prompt -->
+        <Label text="Already have an account?" style="-fx-text-fill: #bbb; -fx-font-size: 14px;" />
+        <Button fx:id="loginButton" text="Go to Login Page" prefWidth="300" />
+    </VBox>
+</StackPane>
