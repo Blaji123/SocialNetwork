@@ -71,7 +71,8 @@ public class UserDbRepository implements Repository<Long, User> {
 
             String email = resultSet.getString("email");
             String password = resultSet.getString("password");
-            User user = new User(firstName, lastName, email, password);
+            byte[] photo = resultSet.getBytes("photo");
+            User user = new User(firstName, lastName, email, password, photo);
             user.setId(idd);
             return user;
         } catch (SQLException e) {
@@ -90,8 +91,11 @@ public class UserDbRepository implements Repository<Long, User> {
                 Long id = resultSet.getLong("id");
                 String firstName = resultSet.getString("first_name");
                 String lastName = resultSet.getString("last_name");
+                String email = resultSet.getString("email");
+                String password = resultSet.getString("password");
+                byte[] photo = resultSet.getBytes("photo");
 
-                User utilizator = new User(firstName, lastName);
+                User utilizator = new User(firstName, lastName, email, password, photo);
                 utilizator.setId(id);
                 users.add(utilizator);
             }
@@ -104,7 +108,7 @@ public class UserDbRepository implements Repository<Long, User> {
 
     @Override
     public Optional<User> save(User entity) {
-        String sql = "insert into users (first_name, last_name, email, password) values (?, ?, ?, ?)";
+        String sql = "insert into users (first_name, last_name, email, password, photo) values (?, ?, ?, ?, ?)";
         validator.validate(entity);
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -113,6 +117,7 @@ public class UserDbRepository implements Repository<Long, User> {
             ps.setString(2, entity.getLastName());
             ps.setString(3, entity.getEmail());
             ps.setString(4, entity.getPassword());
+            ps.setBytes(5, entity.getPhoto());
 
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -144,12 +149,14 @@ public class UserDbRepository implements Repository<Long, User> {
         if(user == null)
             throw new IllegalArgumentException("entity must be not null!");
         validator.validate(user);
-        String sql = "update users set first_name = ?, last_name = ? where id = ?";
+        String sql = "update users set first_name = ?, last_name = ?, email = ?, photo = ? where id = ?";
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1,user.getFirstName());
             ps.setString(2, user.getLastName());
-            ps.setLong(3, user.getId());
+            ps.setString(3, user.getEmail());
+            ps.setBytes(4, user.getPhoto());
+            ps.setLong(5, user.getId());
             if( ps.executeUpdate() > 0 )
                 return Optional.empty();
             return Optional.ofNullable(user);

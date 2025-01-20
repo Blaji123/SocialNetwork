@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.guiex1.controller.ProfilePageController"
+            prefWidth="1200" prefHeight="900"
+            stylesheets="/com/example/guiex1/css/profile-page.css"
+            styleClass="root">
+
+        <HBox spacing="15" style="-fx-alignment: center-left; -fx-padding: 10; -fx-background-color: #37474f; ">
+            <!-- Back Arrow -->
+            <Button fx:id="backButton" styleClass="back-arrow"/>
+            <Label text="Profile Page" styleClass="header-title"/>
+        </HBox>
+
+    <!-- Main Profile Section -->
+    <VBox spacing="20" alignment="CENTER" styleClass="profile-container" AnchorPane.topAnchor="80" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" prefWidth="800">
+        <HBox spacing="20" alignment="CENTER" styleClass="profile-inner-container" prefWidth="800">
+
+            <!-- Profile Photo -->
+            <ImageView fx:id="userPhoto" fitWidth="150" fitHeight="150" styleClass="profile-photo" />
+
+            <!-- Profile Info and Message Button -->
+            <VBox spacing="10" alignment="CENTER_LEFT">
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <Label fx:id="userNameLabel" text="User Name" styleClass="profile-name" />
+                    <Button fx:id="dynamicButton" text="Message" styleClass="icon-button" prefWidth="100" prefHeight="100" />
+                </HBox>
+
+                <!-- Stats -->
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <Label fx:id="postsCountLabel" text="Posts: 0" styleClass="profile-stats" />
+                    <Label fx:id="friendsCountLabel" text="Friends: 0" styleClass="profile-stats" />
+                </HBox>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <VBox fx:id="noPostsContainer" spacing="10" alignment="CENTER" styleClass="no-posts-container"
+          AnchorPane.topAnchor="330" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
+        <ImageView fx:id="noPostsImage" fitWidth="150" fitHeight="150" />
+        <Label text="No Posts Yet" styleClass="no-posts-label" />
+    </VBox>
+</AnchorPane>

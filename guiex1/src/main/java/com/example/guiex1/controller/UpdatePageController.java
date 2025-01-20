@@ -12,12 +12,19 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
 public class UpdatePageController {
+
+    @FXML
+    private ImageView profilePhoto;
 
     @FXML
     private TextField firstNameField;
@@ -48,6 +55,7 @@ public class UpdatePageController {
     public void setUser(User user) {
         this.currentUser = user;
         loadUserData();
+        setProfileImage();
     }
 
     public void setUserService(UserService userService) {
@@ -56,12 +64,55 @@ public class UpdatePageController {
 
     @FXML
     public void initialize() {
-        setBackArrow();
+//        setBackArrow();
 
         updateButton.setOnAction(event -> handleUpdate());
         deleteButton.setOnAction(event -> confirmAndDeleteUser());
         backButton.setOnAction(event -> goToFriendsPage());
     }
+
+    private void setProfileImage(){
+        Circle clip = new Circle(75, 75, 75); // Center x, y, radius
+        profilePhoto.setClip(clip);
+        // Set a default placeholder image (optional)
+        profilePhoto.setImage(new Image(new ByteArrayInputStream(currentUser.getPhoto())));
+    }
+
+    @FXML
+    private void handleChangeProfilePhoto() {
+        // Open a FileChooser for selecting a new photo
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Profile Photo");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(profilePhoto.getScene().getWindow());
+        if (selectedFile != null) {
+            try {
+                // Convert the selected file to a byte array
+                byte[] photoBytes = java.nio.file.Files.readAllBytes(selectedFile.toPath());
+
+                // Update the profile photo in the UI
+                Image newPhoto = new Image(selectedFile.toURI().toString());
+                profilePhoto.setImage(newPhoto);
+
+                // Set the new photo bytes in the currentUser object (adjust this to your user model)
+                currentUser.setPhoto(photoBytes);
+
+                // Save the updated user to the database
+                userService.updateUser(currentUser);
+
+                // Reapply the circular clipping to the new photo
+                Circle clip = new Circle(75, 75, 75);
+                profilePhoto.setClip(clip);
+            } catch (IOException e) {
+                e.printStackTrace(); // Log the error or show a user-friendly message
+            }
+        }
+    }
+
+
 
     private void setBackArrow() {
         try{

@@ -3,6 +3,16 @@
     -fx-background-color: linear-gradient(to bottom, #37474f, #263238);
 }
 
+.header-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+    -fx-padding: 15;
+    -fx-background-color: #37474f;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 8, 0.5, 0, 1);
+}
+
 /* Navbar Container */
 .navbar-container {
     -fx-background-color: #455a64;
@@ -19,6 +29,10 @@
     -fx-font-weight: bold;
     -fx-text-fill: white;
     -fx-translate-y: 15px
+}
+
+.profile-photo{
+    -fx-cursor: hand;
 }
 
 /* Back Arrow Styling */

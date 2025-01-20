@@ -8,6 +8,15 @@ public class User extends Entity<Long>{
     private String lastName;
     private String email;
     private String password;
+    private byte[] photo;
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
+    }
 
     public void setPassword(String password) {
         this.password = password;
@@ -30,6 +39,14 @@ public class User extends Entity<Long>{
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+    }
+
+    public User(String firstName, String lastName, String email, String password, byte[] photo) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.photo = photo;
     }
 
     public User(){}

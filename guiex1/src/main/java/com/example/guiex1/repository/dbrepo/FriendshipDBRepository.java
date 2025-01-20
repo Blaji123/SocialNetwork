@@ -14,9 +14,9 @@ import java.util.*;
 
 public class FriendshipDBRepository implements Repository<Tuple<Long, Long>, Friendship> {
 
-    private String url;
-    private String username;
-    private String password;
+    protected String url;
+    protected String username;
+    protected String password;
     private Validator validator;
 
     public FriendshipDBRepository(Validator validator) {

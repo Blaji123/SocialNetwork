@@ -21,6 +21,7 @@ public class Tuple<E1, E2> {
         return e1;
     }
 
+
     public void setLeft(E1 e1) {
         this.e1 = e1;
     }

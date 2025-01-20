@@ -64,7 +64,6 @@ public class LoginPageController {
     private void openFriendsPage(User user) {
         try {
             URL resource = getClass().getResource("/com/example/guiex1/views/friends-page-view.fxml");
-            System.out.println(resource);
             FXMLLoader loader = new FXMLLoader(resource);
             Parent root = loader.load();
             FriendsPageController controller = loader.getController();

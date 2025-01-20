@@ -6,10 +6,8 @@ import com.example.guiex1.domain.validators.FriendRequestsValidator;
 import com.example.guiex1.domain.validators.FriendshipValidator;
 import com.example.guiex1.domain.validators.UserValidator;
 import com.example.guiex1.repository.Repository;
-import com.example.guiex1.repository.dbrepo.FriendRequestsDBRepository;
-import com.example.guiex1.repository.dbrepo.FriendshipDBRepository;
-import com.example.guiex1.repository.dbrepo.MessageDBRepository;
-import com.example.guiex1.repository.dbrepo.UserDbRepository;
+import com.example.guiex1.repository.dbrepo.*;
+import com.example.guiex1.repository.paging.PagingRepository;
 import com.example.guiex1.services.FriendshipService;
 import com.example.guiex1.services.UserService;
 import javafx.application.Application;
@@ -35,11 +33,12 @@ public class HelloApplication extends Application {
         Repository<Long, User> utilizatorRepository =
                 new UserDbRepository(url,username, pasword,  new UserValidator());
         Repository<Tuple<Long, Long>, Friendship> friendshipRepository = new FriendshipDBRepository(new FriendshipValidator());
+        PagingRepository<Tuple<Long, Long>, Friendship> friendshipPagingRepo = new FriendshipPagingRepository(new FriendshipValidator());
         Repository<Tuple<Long, Long>, FriendRequests> friendRequestsRepository = new FriendRequestsDBRepository(new FriendRequestsValidator());
         Repository<Long, Message> messageRepository = new MessageDBRepository(new FriendRequestsValidator(), utilizatorRepository);
 
         UserService userService = new UserService(utilizatorRepository, messageRepository);
-        FriendshipService friendshipService = new FriendshipService(friendshipRepository, utilizatorRepository, friendRequestsRepository, messageRepository);
+        FriendshipService friendshipService = new FriendshipService(friendshipPagingRepo, friendshipRepository, utilizatorRepository, friendRequestsRepository, messageRepository);
         initView(primaryStage, userService, friendshipService);
         primaryStage.setWidth(1200);
         primaryStage.show();

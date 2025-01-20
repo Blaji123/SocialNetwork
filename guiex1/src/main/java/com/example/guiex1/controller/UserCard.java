@@ -2,15 +2,22 @@ package com.example.guiex1.controller;
 
 import com.example.guiex1.domain.User;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+
+import java.io.ByteArrayInputStream;
 
 /**
  * A card component for displaying user information with actions (Accept/Decline/Add Friend).
  */
 public class UserCard extends VBox {
 
+
+    private ImageView image;
     private final User user;
     private final Button primaryButton;
     private Button secondaryButton;
@@ -22,6 +29,14 @@ public class UserCard extends VBox {
         this.user = user;
         this.primaryButton = new Button(primaryAction);
         this.secondaryButton = new Button(secondaryAction);
+        this.image = new ImageView();
+
+        Circle circle = new Circle(75, 75, 75);
+        image.setImage(new Image(new ByteArrayInputStream(user.getPhoto())));
+        image.setFitWidth(150);
+        image.setFitHeight(150);
+        image.setStyle("-fx-alignment: center;");
+        image.setClip(circle);
 
         // Set up the user details
         Text name = new Text(user.getFirstName() + " " + user.getLastName());
@@ -39,8 +54,8 @@ public class UserCard extends VBox {
         buttonContainer.setStyle("-fx-alignment: center;");
 
         this.setSpacing(10);
-        this.setStyle("-fx-padding: 15; -fx-background-color: #455a64; -fx-border-radius: 10; -fx-background-radius: 10;");
-        this.getChildren().addAll(name, email, buttonContainer);
+        this.setStyle("-fx-padding: 30; -fx-background-color: #455a64; -fx-border-radius: 10; -fx-background-radius: 10;");
+        this.getChildren().addAll(image, name, email, buttonContainer);
     }
 
     /**
@@ -49,6 +64,13 @@ public class UserCard extends VBox {
     public UserCard(User user, String primaryAction, Runnable primaryHandler) {
         this.user = user;
         this.primaryButton = new Button(primaryAction);
+        this.image = new ImageView();
+
+        Circle circle = new Circle(75, 75, 75);
+        image.setImage(new Image(new ByteArrayInputStream(user.getPhoto())));
+        image.setFitWidth(150);
+        image.setFitHeight(150);
+        image.setClip(circle);
 
         // Set up the user details
         Text name = new Text(user.getFirstName() + " " + user.getLastName());
@@ -65,8 +87,8 @@ public class UserCard extends VBox {
         buttonContainer.setStyle("-fx-alignment: center;");
 
         this.setSpacing(10);
-        this.setStyle("-fx-padding: 15; -fx-background-color: #455a64; -fx-border-radius: 10; -fx-background-radius: 10;");
-        this.getChildren().addAll(name, email, buttonContainer);
+        this.setStyle("-fx-padding: 30; -fx-background-color: #455a64; -fx-border-radius: 10; -fx-background-radius: 10;");
+        this.getChildren().addAll(image, name, email, buttonContainer);
     }
 
     public User getUser() {

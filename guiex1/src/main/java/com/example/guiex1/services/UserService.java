@@ -9,7 +9,11 @@ import com.example.guiex1.utils.events.ChangeEventType;
 import com.example.guiex1.utils.events.UserEntityChangeEvent;
 import com.example.guiex1.utils.observer.Observable;
 import com.example.guiex1.utils.observer.Observer;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,16 +21,31 @@ public class UserService implements Observable<UserEntityChangeEvent> {
     private final Repository<Long, User> repo;
     private final Repository<Long, Message> messageRepo;
     private List<Observer<UserEntityChangeEvent>> observers=new ArrayList<>();
+    private static final String DEFAULT_PHOTO_PATH = "/home/blaji/Downloads/lab6-exemplu-GUI1/guiex1/src/main/resources/com/example/guiex1/images/default_anonymous_photo.jpg";
 
     public UserService(Repository<Long, User> repo, Repository<Long, Message> messageRepo) {
         this.repo = repo;
         this.messageRepo = messageRepo;
     }
 
+    private byte[] loadDefaultPhoto(){
+        try{
+            return Files.readAllBytes(Paths.get(DEFAULT_PHOTO_PATH));
+        }catch (IOException e){
+            throw new RuntimeException("Default photo could not be uploaded", e);
+        }
+    }
+
     public User addUser(User user) {
         if(repo.findByEmail(user.getEmail()).isPresent()){
             throw new ValidationException("Email already in use");
         }
+
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        user.setPassword(hashedPassword);
+
+        user.setPhoto(loadDefaultPhoto());
+
         if(repo.save(user).isEmpty()){
             UserEntityChangeEvent event = new UserEntityChangeEvent(ChangeEventType.ADD, user);
             notifyObservers(event);
@@ -128,7 +147,7 @@ public class UserService implements Observable<UserEntityChangeEvent> {
     public User authenticateUser(String email, String password) {
         User user = repo.findByEmail(email).orElse(null);
 
-        if(user == null || !user.getPassword().equals(password)){
+        if(user == null || !BCrypt.checkpw(password, user.getPassword())){
             return null;
         }
 

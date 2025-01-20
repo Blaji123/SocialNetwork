@@ -17,18 +17,20 @@
     </stylesheets>
 
     <!-- Back Button -->
-        <HBox spacing="15" styleClass="navbar">
-            <!-- Back Button -->
-            <Button fx:id="backButton" styleClass="back-arrow"/>
-            <Label text="Profile" styleClass="navbar-title"/>
-        </HBox>
+    <HBox spacing="15" style="-fx-alignment: top-left; -fx-padding: 10; -fx-background-color: #37474f; " alignment="TOP_LEFT">
+        <!-- Back Arrow -->
+        <Button fx:id="backButton" styleClass="back-arrow"/>
+        <Label text="Update Page" styleClass="header-title"/>
+    </HBox>
 
     <!-- Main Content Container -->
     <VBox fx:id="formContainer" spacing="20" alignment="center" maxWidth="450" maxHeight="700">
         <!-- Profile Image -->
-        <ImageView fitWidth="180" fitHeight="180" preserveRatio="true" smooth="true">
-            <Image url="@../images/logo.png" />
-        </ImageView>
+        <ImageView fx:id="profilePhoto"
+                   fitWidth="150"
+                   fitHeight="150"
+                   onMouseClicked="#handleChangeProfilePhoto"
+                   styleClass="profile-photo" />
 
         <!-- Title -->
         <Label text="Update Profile" styleClass="update-title"/>

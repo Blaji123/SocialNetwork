@@ -7,6 +7,7 @@ module com.example.guiex1 {
     requires org.kordamp.bootstrapfx.core;
     requires java.sql;
     requires java.desktop;
+    requires spring.security.crypto;
 
     opens com.example.guiex1 to javafx.fxml;
     opens com.example.guiex1.controller to javafx.fxml;

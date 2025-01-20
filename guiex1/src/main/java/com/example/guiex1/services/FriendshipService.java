@@ -8,22 +8,24 @@ import com.example.guiex1.repository.dbrepo.FriendshipDBRepository;
 import com.example.guiex1.repository.dbrepo.UserDbRepository;
 import com.example.guiex1.repository.paging.Page;
 import com.example.guiex1.repository.paging.Pageable;
+import com.example.guiex1.repository.paging.PagingRepository;
 import com.example.guiex1.utils.observer.Observer;
 import com.example.guiex1.utils.observer.Observer2;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FriendshipService {
+    private final PagingRepository<Tuple<Long, Long>, Friendship> friendshipPagingRepo;
     private final Repository<Tuple<Long, Long>, Friendship> repositoryFriendship;
     private final Repository<Long, User> userRepository;
     private final Repository<Tuple<Long, Long>, FriendRequests> friendRequestsRepository;
     private final Repository<Long, Message> messageRepo;
     private final List<Observer2> observers = new ArrayList<>();
 
-    public FriendshipService(Repository<Tuple<Long, Long>, Friendship>  repositoryFriendship, Repository<Long, User>  userRepository, Repository<Tuple<Long, Long>, FriendRequests> friendRequestsRepository, Repository<Long, Message> messageRepo) {
+    public FriendshipService(PagingRepository<Tuple<Long, Long>, Friendship> friendshipPagingRepo, Repository<Tuple<Long, Long>, Friendship>  repositoryFriendship, Repository<Long, User>  userRepository, Repository<Tuple<Long, Long>, FriendRequests> friendRequestsRepository, Repository<Long, Message> messageRepo) {
+        this.friendshipPagingRepo = friendshipPagingRepo;
         this.repositoryFriendship = repositoryFriendship;
         this.userRepository = userRepository;
         this.friendRequestsRepository = friendRequestsRepository;
@@ -109,16 +111,6 @@ public class FriendshipService {
             }
         });
         return users;
-    }
-
-    public Page<User> getPagedFriendsForUser(User currentUser, Pageable pageable) {
-        List<User> allFriends = getFriendsForUser(currentUser);
-        int start = pageable.getPageNumber() * pageable.getPageSize();
-        int end = Math.min(start + pageable.getPageSize(), allFriends.size());
-        if (start >= allFriends.size()) {
-            return new Page<>(new ArrayList<>(), allFriends.size());
-        }
-        return new Page<>(allFriends.subList(start, end), allFriends.size());
     }
 
     public List<User> getNotFriendsForUser(User currentUser) {
@@ -238,6 +230,27 @@ public class FriendshipService {
 
         FriendRequests friendRequest = friendRequestsRepository.findOne(new Tuple<>(user1.getId(), user2.getId())).orElseThrow(() -> new ValidationException("friendship doesnt exist"));
         return friendRequest.getStatus();
+    }
+
+    public Page<User> getPaginatedFriendsForUser(User currentUser, int pageNumber, int pageSize) {
+        Pageable pageable = new Pageable(pageNumber, pageSize);
+        Page<Friendship> friendships = friendshipPagingRepo.findAllPaged(currentUser.getId(), pageable);
+        List<Friendship> friendshipsList = new ArrayList<>();
+        friendships.getElementsOnPage().forEach(friendshipsList::add);
+
+        // Map friendships to corresponding User objects
+        List<User> users = friendshipsList.stream()
+                .map(friendship -> {
+                    Long friendId = friendship.getId().getE1().equals(currentUser.getId())
+                            ? friendship.getId().getE2()
+                            : friendship.getId().getE1();
+                    return userRepository.findOne(friendId);
+                })
+                .flatMap(Optional::stream)// Exclude null results if any
+                .collect(Collectors.toList());
+
+        // Return a new Page object with the users and total element count
+        return new Page<>(users, friendships.getTotalElementCount());
     }
 
     public void addObserver(Observer2 observer) {

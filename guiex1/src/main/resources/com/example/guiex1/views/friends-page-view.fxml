@@ -11,6 +11,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.control.ComboBox?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.guiex1.controller.FriendsPageController"
             prefWidth="1200" prefHeight="900"
@@ -23,7 +24,7 @@
             </Button>
 
             <!-- Search Bar -->
-<!--            <TextField fx:id="searchBar" promptText="Search users..." styleClass="search-bar"/>-->
+            <!--            <TextField fx:id="searchBar" promptText="Search users..." styleClass="search-bar"/>-->
 
             <!-- Spacer -->
             <Pane HBox.hgrow="ALWAYS" />
@@ -46,8 +47,8 @@
         <VBox spacing="20" styleClass="sidebar">
             <!-- Profile Section -->
             <Label fx:id="profileNameLabel" text="John Doe" styleClass="profile-name"/>
-            <Button fx:id="viewProfileButton" text="View Profile" styleClass="sidebar-button"/>
-
+            <Button fx:id="viewProfileButton" text="Update Profile" styleClass="sidebar-button"/>
+            <Button fx:id="viewProfilePageButton" text="View Profile" styleClass="sidebar-button"/>
             <!-- Friends List Navigation -->
             <Button fx:id="friendsListButton" text="Make Friends" styleClass="sidebar-button"/>
         </VBox>
@@ -63,17 +64,17 @@
                     <TableColumn fx:id="friendFirstNameCol" text="First Name" prefWidth="150"/>
                     <TableColumn fx:id="friendLastNameCol" text="Last Name" prefWidth="150"/>
                     <TableColumn fx:id="friendActionCol" text="Action" prefWidth="150"/>
+                    <TableColumn fx:id="viewProfileCol" text="View Profile" prefWidth="150"/>
                 </columns>
             </TableView>
-
-            <HBox spacing="10" alignment="CENTER">
-                <Button fx:id="previousPageButton" text="Previous"/>
-                <Label fx:id="pageLabel" text="Page 1"/>
-                <Button fx:id="nextPageButton" text="Next"/>
-            </HBox>
-
-            <!-- Additional Sections -->
-            <Label text="Other Sections (To Be Implemented)" styleClass="placeholder-text"/>
         </VBox>
     </center>
+    <bottom>
+        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10;">
+            <Button fx:id="previousPageButton" text="Previous"/>
+            <Label fx:id="pageNumberLabel" text="Page: 1"/>
+            <Button fx:id="nextPageButton" text="Next"/>
+            <ComboBox fx:id="pageSizeDropdown" layoutX="20" layoutY="20" prefWidth="100" />
+        </HBox>
+    </bottom>
 </BorderPane>
