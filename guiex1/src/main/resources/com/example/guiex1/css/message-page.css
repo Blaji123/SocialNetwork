@@ -3,6 +3,18 @@
     -fx-background-color: linear-gradient(to bottom, #37474f, #263238);
 }
 
+/* Chat Header */
+.chat-header {
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+
+.chat-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
 /* Navigation Bar */
 .navbar {
     -fx-background-color: #455a64;
@@ -31,13 +43,13 @@
     -fx-background-color: #0288d1;
 }
 
-/* Friends List */
-.friends-list {
-    -fx-background-color: #455a64;
-    -fx-padding: 10;
-    -fx-spacing: 10;
-    -fx-alignment: center-left;
-}
+/*!* Friends List *!*/
+/*.friends-list {*/
+/*    -fx-background-color: #455a64;*/
+/*    -fx-padding: 10;*/
+/*    -fx-spacing: 10;*/
+/*    -fx-alignment: center-left;*/
+/*}*/
 
 .list-title {
     -fx-font-size: 16px;
@@ -46,12 +58,12 @@
     -fx-padding: 5;
 }
 
-.list-view {
-    -fx-background-color: #546e7a;
-    -fx-border-radius: 7px;
-    -fx-background-radius: 7px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.5, 0, 1);
-}
+/*.list-view {*/
+/*    -fx-background-color: #546e7a;*/
+/*    -fx-border-radius: 7px;*/
+/*    -fx-background-radius: 7px;*/
+/*    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.5, 0, 1);*/
+/*}*/
 
 /* Chat Area */
 .messages-area {
@@ -59,6 +71,10 @@
     -fx-background-color: #455a64;
     -fx-border-radius: 15px;
     -fx-background-radius: 15px;
+}
+
+.messages-scroll{
+    -fx-background-color: transparent;
 }
 
 .chat-title {
@@ -108,4 +124,56 @@
 
 .send-button:pressed {
     -fx-background-color: #01579b;
+}
+
+.friends-list {
+    -fx-background-color: #37474f;
+    -fx-padding: 15;
+    -fx-spacing: 10;
+}
+
+.list-view {
+    -fx-background-color: #455a64;
+    -fx-border-radius: 7px;
+    -fx-background-radius: 7px;
+}
+
+.list-cell {
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+}
+
+.list-cell:selected {
+    -fx-background-color: #546e7a;
+}
+
+.list-cell:hover {
+    -fx-background-color: #607d8b;
+}
+
+#messageContainer {
+    -fx-padding: 10;
+    -fx-spacing: 5;
+}
+
+#messageField {
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+    -fx-background-color: #222;
+    -fx-text-fill: white;
+}
+
+#sendButton {
+    -fx-background-color: #0b93f6;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+
+.label {
+    -fx-padding: 8;
+    -fx-background-color: #444;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
 }

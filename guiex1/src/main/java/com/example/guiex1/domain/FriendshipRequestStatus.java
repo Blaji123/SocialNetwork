@@ -1,5 +1,5 @@
 package com.example.guiex1.domain;
 
-public enum FriendshipStatus {
+public enum FriendshipRequestStatus {
     Pending, Accepted, Rejected, Deleted
 }

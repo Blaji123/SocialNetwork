@@ -2,7 +2,9 @@ package com.example.guiex1.controller;
 
 import com.example.guiex1.domain.User;
 import com.example.guiex1.repository.paging.Page;
+import com.example.guiex1.services.FriendshipRequestService;
 import com.example.guiex1.services.FriendshipService;
+import com.example.guiex1.services.MessageService;
 import com.example.guiex1.services.UserService;
 import com.example.guiex1.utils.events.ChangeEventType;
 import com.example.guiex1.utils.events.UserEntityChangeEvent;
@@ -26,7 +28,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class FriendsPageController implements Observer2, Observer<UserEntityChangeEvent> {
-
     @FXML
     private Button homeButton;
     @FXML
@@ -66,31 +67,22 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
 
     private FriendshipService friendshipService;
     private UserService userService;
+    private MessageService messageService;
+    private FriendshipRequestService friendshipRequestService;
     private User user;
     private final ObservableList<User> friendsList = FXCollections.observableArrayList();
     private int currentPage = 0;
     private static int PAGE_SIZE = 5;
 
-    public UserService getUserService() {
-        return userService;
-    }
-
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-        this.userService.addObserver(this);
-    }
-
-    public FriendshipService getFriendshipService() {
-        return friendshipService;
-    }
-
-    public void setFriendshipService(FriendshipService friendshipService) {
+    public void setServices(FriendshipService friendshipService, UserService userService, MessageService messageService, FriendshipRequestService friendshipRequestService) {
         this.friendshipService = friendshipService;
+        this.userService = userService;
+        this.messageService = messageService;
+        this.friendshipRequestService = friendshipRequestService;
         this.friendshipService.addObserver(this);
-    }
-
-    public User getUser() {
-        return user;
+        this.userService.addObserver(this);
+        this.messageService.addObserver(this);
+        this.friendshipService.addObserver(this);
     }
 
     public void setUser(User user) {
@@ -99,9 +91,10 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         loadFriends();
     }
 
-    /**
-     * Initialize the controller. This method is called automatically after the FXML file is loaded.
-     */
+    public User getUser() {
+        return user;
+    }
+
     @FXML
     public void initialize() {
         setLogoImage();
@@ -117,36 +110,19 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         logoutButton.setOnAction(event -> handleLogout());
         viewProfileButton.setOnAction(event -> navigateToProfile());
         friendsListButton.setOnAction(event -> navigateToFriendsList());
-        viewProfilePageButton.setOnAction(event -> navigateToViewProfilePage());
+        viewProfilePageButton.setOnAction(event -> navigateToViewProfilePage(user));
 
         setupPageSizeDropdown();
     }
 
-    private void navigateToViewProfilePage() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/profile-page-view.fxml"));
-            Parent profilePage = loader.load();
-            ProfilePageController profilePageController = loader.getController();
-            profilePageController.setUserService(userService);
-            profilePageController.setFriendshipService(friendshipService);
-            profilePageController.setCurrentUser(user);
-            profilePageController.setTargetUser(user);
-            Scene scene = new Scene(profilePage, 1200, 900);
-            Stage stage = (Stage) viewProfilePageButton.getScene().getWindow();
-            stage.setScene(scene);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
     private void setupPageSizeDropdown() {
-        pageSizeDropdown.getItems().addAll(5, 10, 15, 20); // Add predefined page size options.
-        pageSizeDropdown.setValue(PAGE_SIZE); // Set default value.
+        pageSizeDropdown.getItems().addAll(5, 10, 15, 20);
+        pageSizeDropdown.setValue(PAGE_SIZE);
         pageSizeDropdown.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                currentPage = 0; // Reset to the first page.
-                PAGE_SIZE = newValue; // Update the page size.
-                loadFriends(); // Reload the friends list with the new page size.
+                currentPage = 0;
+                PAGE_SIZE = newValue;
+                loadFriends();
             }
         });
     }
@@ -157,7 +133,6 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
 
         friendActionCol.setCellFactory(tc -> new TableCell<>() {
             private final Button removeButton = new Button("Remove");
-
             {
                 removeButton.setOnAction(event -> {
                     User friend = getTableView().getItems().get(getIndex());
@@ -175,23 +150,13 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
 
         viewProfileCol.setCellFactory(tc -> new TableCell<>() {
             private final Button viewProfileButton = new Button("View Profile");
-
             {
                 viewProfileButton.setOnAction(event -> {
                     try {
                         User friend = getTableView().getItems().get(getIndex());
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/profile-page-view.fxml"));
-                        Parent profilePage = loader.load();
-                        ProfilePageController profilePageController = loader.getController();
-                        profilePageController.setUserService(userService);
-                        profilePageController.setFriendshipService(friendshipService);
-                        profilePageController.setCurrentUser(user);
-                        profilePageController.setTargetUser(friend);
-                        Scene scene = new Scene(profilePage, 1200, 900);
-                        Stage stage = (Stage) viewProfilePageButton.getScene().getWindow();
-                        stage.setScene(scene);
+                        navigateToViewProfilePage(friend);
                     }catch (Exception e){
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
                 });
             }
@@ -201,14 +166,7 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
                 super.updateItem(item, empty);
                 setGraphic(empty ? null : viewProfileButton);
             }
-
         });
-
-    }
-
-    private void updateLists() {
-        // Updates the lists for the tables using Observer or service methods
-        loadFriends();
     }
 
     private void loadFriends() {
@@ -259,7 +217,6 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         }
     }
 
-
     private void setNotifcationImage() {
         try{
             notificationsButton.setPrefSize(100, 100);
@@ -274,7 +231,6 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         }
     }
 
-
     private void setLogoImage() {
         try{
             homeButton.setPrefSize(100, 100);
@@ -288,25 +244,23 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         }
     }
 
-    /**
-     * Handle search functionality when typing in the search bar.
-     */
 //    private void handleSearch(KeyEvent event) {
 //        String query = searchBar.getText();
 //        System.out.println("Search query: " + query);
 //        // Implement search functionality (e.g., filter friends in the table)
 //    }
 
-    /**
-     * Navigate to the user's profile page.
-     */
+    private void handleLogout() {
+        Stage stage = (Stage) logoutButton.getScene().getWindow();
+        stage.close();
+    }
+
     private void navigateToProfile() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/update-page-view.fxml"));
             Parent updatePage = loader.load();
             UpdatePageController updatePageController = loader.getController();
-            updatePageController.setUserService(userService);
-            updatePageController.setFriendshipService(friendshipService);
+            updatePageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             updatePageController.setUser(user);
             Scene scene = new Scene(updatePage, 1200, 900);
             Stage stage = (Stage) viewProfileButton.getScene().getWindow();
@@ -316,16 +270,12 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         }
     }
 
-    /**
-     * Navigate to the user's friends list.
-     */
     private void navigateToFriendsList() {
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/make-friends-view.fxml"));
             Parent makeFriendsPage = loader.load();
             MakeFriendsController makeFriendsController = loader.getController();
-            makeFriendsController.setUserService(userService);
-            makeFriendsController.setFriendshipService(friendshipService);
+            makeFriendsController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             makeFriendsController.setCurrentUser(user);
             Scene scene = new Scene(makeFriendsPage, 1200, 900);
             Stage stage = (Stage) friendsListButton.getScene().getWindow();
@@ -335,16 +285,12 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         }
     }
 
-    /**
-     * Navigate to the messages page.
-     */
     private void navigateToMessages() {
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/message-page-view.fxml"));
             Parent messagePage = loader.load();
             MessagePageController messagePageController = loader.getController();
-            messagePageController.setUserService(userService);
-            messagePageController.setFriendshipService(friendshipService);
+            messagePageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             messagePageController.setCurrentUser(user);
             Scene scene = new Scene(messagePage, 1200, 900);
             Stage stage = (Stage) messagesButton.getScene().getWindow();
@@ -354,16 +300,12 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         }
     }
 
-    /**
-     * Navigate to the notifications page.
-     */
     private void navigateToNotifications() {
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/notification-page-view.fxml"));
             Parent notificationPage = loader.load();
             NotificationPageController notificationPageController = loader.getController();
-            notificationPageController.setUserService(userService);
-            notificationPageController.setFriendshipService(friendshipService);
+            notificationPageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             notificationPageController.setUser(user);
             Scene scene = new Scene(notificationPage, 1200, 900);
             Stage stage = (Stage) messagesButton.getScene().getWindow();
@@ -373,12 +315,24 @@ public class FriendsPageController implements Observer2, Observer<UserEntityChan
         }
     }
 
-    /**
-     * Handle the logout action by closing the application window.
-     */
-    private void handleLogout() {
-        Stage stage = (Stage) logoutButton.getScene().getWindow();
-        stage.close();
+    private void navigateToViewProfilePage(User friend) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/profile-page-view.fxml"));
+            Parent profilePage = loader.load();
+            ProfilePageController profilePageController = loader.getController();
+            profilePageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
+            profilePageController.setCurrentUser(user);
+            profilePageController.setTargetUser(friend);
+            Scene scene = new Scene(profilePage, 1200, 900);
+            Stage stage = (Stage) viewProfilePageButton.getScene().getWindow();
+            stage.setScene(scene);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void updateLists() {
+        loadFriends();
     }
 
     @Override

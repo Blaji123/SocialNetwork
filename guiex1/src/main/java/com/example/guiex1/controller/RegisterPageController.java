@@ -2,7 +2,9 @@ package com.example.guiex1.controller;
 
 import com.example.guiex1.domain.User;
 import com.example.guiex1.domain.validators.ValidationException;
+import com.example.guiex1.services.FriendshipRequestService;
 import com.example.guiex1.services.FriendshipService;
+import com.example.guiex1.services.MessageService;
 import com.example.guiex1.services.UserService;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -14,39 +16,32 @@ import javafx.scene.Parent;
 import java.io.IOException;
 
 public class RegisterPageController {
-
     @FXML
     private TextField firstNameField;
-
     @FXML
     private TextField lastNameField;
-
     @FXML
     private TextField emailField;
-
     @FXML
     private PasswordField passwordField;
-
     @FXML
     private Label passwordNote;
-
     @FXML
     private Button registerButton;
-
     @FXML
     private Button loginButton;
 
     private UserService userService;
     private FriendshipService friendshipService;
+    private MessageService messageService;
+    private FriendshipRequestService friendshipRequestService;
 
-    public void setFriendshipService(FriendshipService friendshipService) {
+    public void setServices(FriendshipService friendshipService, UserService userService, MessageService messageService, FriendshipRequestService friendshipRequestService) {
         this.friendshipService = friendshipService;
-    }
-
-    public void setUserService(UserService userService) {
         this.userService = userService;
+        this.messageService = messageService;
+        this.friendshipRequestService = friendshipRequestService;
     }
-
 
     @FXML
     public void initialize() {
@@ -59,13 +54,11 @@ public class RegisterPageController {
     }
 
     private void handleRegister() {
-        // Get values from the form
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
         String email = emailField.getText().trim();
         String password = passwordField.getText();
 
-        // Create a new User object (ID will be auto-generated)
         User newUser = new User(firstName, lastName, email, password);
         try{
             userService.addUser(newUser);
@@ -88,13 +81,12 @@ public class RegisterPageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../views/login-page-view.fxml"));
             Parent loginPage = loader.load();
             LoginPageController loginPageController = loader.getController();
-            loginPageController.setUserService(userService);
-            loginPageController.setFriendshipService(friendshipService);
+            loginPageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             Scene scene = new Scene(loginPage, 1200, 900);
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

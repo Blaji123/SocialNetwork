@@ -13,9 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FriendshipPagingRepository extends FriendshipDBRepository implements PagingRepository<Tuple<Long, Long>, Friendship> {
-
-
-    public FriendshipPagingRepository(Validator validator) {
+    public FriendshipPagingRepository(Validator<Friendship> validator) {
         super(validator);
     }
 
@@ -25,7 +23,6 @@ public class FriendshipPagingRepository extends FriendshipDBRepository implement
         int totalElementCount = 0;
 
         try(Connection connection = DriverManager.getConnection(url, username, password)) {
-
             try (PreparedStatement countStatement = connection.prepareStatement("SELECT COUNT(*) FROM friendships WHERE id1 = ? OR id2 = ?")) {
                 countStatement.setLong(1, userId);
                 countStatement.setLong(2, userId);
@@ -45,8 +42,7 @@ public class FriendshipPagingRepository extends FriendshipDBRepository implement
                 while(resultSet.next()){
                     Long id1 = resultSet.getLong("id1");
                     Long id2 = resultSet.getLong("id2");
-                    Timestamp date = resultSet.getTimestamp("friends_from");
-                    LocalDateTime friendsFrom = date.toLocalDateTime();
+                    LocalDateTime friendsFrom = resultSet.getTimestamp("friends_from").toLocalDateTime();
 
                     Friendship friendship = new Friendship(friendsFrom);
                     friendship.setId(new Tuple<>(id1, id2));
@@ -54,7 +50,7 @@ public class FriendshipPagingRepository extends FriendshipDBRepository implement
                 }
             }
         }catch (SQLException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return new Page<>(friendships, totalElementCount);
     }

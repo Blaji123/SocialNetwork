@@ -3,10 +3,6 @@ package com.example.guiex1.domain.validators;
 import com.example.guiex1.domain.Friendship;
 
 public class FriendshipValidator implements Validator<Friendship> {
-    /**
-     * @param entity - Friendship
-     * @throws ValidationException if one of the users given doesnt exist
-     */
     @Override
     public void validate(Friendship entity) throws ValidationException {
         String errorMessage = "";

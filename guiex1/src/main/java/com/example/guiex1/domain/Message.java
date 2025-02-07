@@ -20,20 +20,20 @@ public class Message extends Entity<Long>{
         this.type = type;
     }
 
-    public MessageType getType() {
-        return type;
-    }
-
-    public void setType(MessageType type) {
-        this.type = type;
-    }
-
     public Message(User from, List<User> to, String message, MessageType type) {
         this.from = from;
         this.to = to;
         this.message = message;
         this.time = LocalDateTime.now();
         this.reply = null;
+        this.type = type;
+    }
+
+    public MessageType getType() {
+        return type;
+    }
+
+    public void setType(MessageType type) {
         this.type = type;
     }
 

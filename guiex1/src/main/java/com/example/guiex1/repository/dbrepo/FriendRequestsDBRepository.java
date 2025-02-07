@@ -1,8 +1,7 @@
 package com.example.guiex1.repository.dbrepo;
 
 import com.example.guiex1.domain.FriendRequests;
-import com.example.guiex1.domain.Friendship;
-import com.example.guiex1.domain.FriendshipStatus;
+import com.example.guiex1.domain.FriendshipRequestStatus;
 import com.example.guiex1.domain.Tuple;
 import com.example.guiex1.domain.validators.Validator;
 import com.example.guiex1.repository.Repository;
@@ -17,9 +16,9 @@ public class FriendRequestsDBRepository implements Repository<Tuple<Long, Long>,
     private String url;
     private String username;
     private String password;
-    private Validator validator;
+    private Validator<FriendRequests> validator;
 
-    public FriendRequestsDBRepository(Validator validator) {
+    public FriendRequestsDBRepository(Validator<FriendRequests> validator) {
         try(InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")){
             Properties prop = new Properties();
             if(input == null){
@@ -31,41 +30,38 @@ public class FriendRequestsDBRepository implements Repository<Tuple<Long, Long>,
             this.username = prop.getProperty("db.username");
             this.password = prop.getProperty("db.password");
         }catch (IOException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         this.validator = validator;
     }
 
     @Override
-    public Optional<FriendRequests> findOne(Tuple<Long, Long> longLongTuple) {
+    public Optional<FriendRequests> findOne(Tuple<Long, Long> id) {
         FriendRequests friendRequest = null;
+
         try(Connection connection = DriverManager.getConnection(url, username, password);
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM friend_requests WHERE \"id1\" = ? AND \"id2\" = ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM friend_requests WHERE \"id1\" = ? AND \"id2\" = ?")
         ){
-            statement.setLong(1, longLongTuple.getE1());
-            statement.setLong(2, longLongTuple.getE2());
+            statement.setLong(1, id.getE1());
+            statement.setLong(2, id.getE2());
             ResultSet resultSet = statement.executeQuery();
             while(resultSet.next()){
-                Timestamp date = resultSet.getTimestamp("date");
-                LocalDateTime date_received = new java.sql.Timestamp(date.getTime()).toLocalDateTime();
-                FriendshipStatus status = FriendshipStatus.valueOf(resultSet.getString("status"));
-                friendRequest = new FriendRequests(date_received, status);
-                friendRequest.setId(longLongTuple);
+                LocalDateTime date = resultSet.getTimestamp("date").toLocalDateTime();
+                FriendshipRequestStatus status = FriendshipRequestStatus.valueOf(resultSet.getString("status"));
+                friendRequest = new FriendRequests(date, status);
+                friendRequest.setId(id);
             }
         }catch (SQLException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return Optional.ofNullable(friendRequest);
-    }
 
-    @Override
-    public Optional<FriendRequests> findByEmail(String email) {
-        return Optional.empty();
+        return Optional.ofNullable(friendRequest);
     }
 
     @Override
     public Iterable<FriendRequests> findAll() {
         Set<FriendRequests> friendRequests = new HashSet<>();
+
         try(Connection connection = DriverManager.getConnection(url, username, password);
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM friend_requests");
             ResultSet resultSet = statement.executeQuery()){
@@ -73,16 +69,16 @@ public class FriendRequestsDBRepository implements Repository<Tuple<Long, Long>,
             while (resultSet.next()){
                 Long id1 = resultSet.getLong("id1");
                 Long id2 = resultSet.getLong("id2");
-                Timestamp date = resultSet.getTimestamp("date");
-                LocalDateTime date_received = new java.sql.Timestamp(date.getTime()).toLocalDateTime();
-                FriendshipStatus status = FriendshipStatus.valueOf(resultSet.getString("status"));
-                FriendRequests friendRequest = new FriendRequests(date_received, status);
+                LocalDateTime date = resultSet.getTimestamp("date").toLocalDateTime();
+                FriendshipRequestStatus status = FriendshipRequestStatus.valueOf(resultSet.getString("status"));
+                FriendRequests friendRequest = new FriendRequests(date, status);
                 friendRequest.setId(new Tuple<>(id1, id2));
                 friendRequests.add(friendRequest);
             }
         }catch (SQLException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
         return friendRequests;
     }
 
@@ -93,7 +89,7 @@ public class FriendRequestsDBRepository implements Repository<Tuple<Long, Long>,
         }
         validator.validate(entity);
         try(Connection connection = DriverManager.getConnection(url, username, password);
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO friend_requests(id1, id2, date, status) VALUES (?, ?, ?, ?)");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO friend_requests(id1, id2, date, status) VALUES (?, ?, ?, ?)")
         ){
             statement.setLong(1, entity.getId().getE1());
             statement.setLong(2, entity.getId().getE2());
@@ -101,35 +97,39 @@ public class FriendRequestsDBRepository implements Repository<Tuple<Long, Long>,
             statement.setString(4, entity.getStatus().toString());
             statement.executeUpdate();
         }catch (SQLException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
         return Optional.of(entity);
     }
 
     @Override
-    public Optional<FriendRequests> delete(Tuple<Long, Long> longLongTuple) {
+    public Optional<FriendRequests> delete(Tuple<Long, Long> id) {
         try(Connection connection = DriverManager.getConnection(url, username, password);
-            PreparedStatement statement = connection.prepareStatement("DELETE FROM friend_requests WHERE \"id1\" = ? AND  \"id2\" = ?");
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM friend_requests WHERE \"id1\" = ? AND  \"id2\" = ?")
         ){
-            statement.setLong(1,longLongTuple.getE1());
-            statement.setLong(2, longLongTuple.getE2());
+            statement.setLong(1,id.getE1());
+            statement.setLong(2, id.getE2());
             statement.executeUpdate();
         }catch (SQLException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         FriendRequests friendshipToDelete = null;
         for(FriendRequests friendRequests : findAll()){
-            if(Objects.equals(friendRequests.getId(), longLongTuple)){
+            if(Objects.equals(friendRequests.getId(), id)){
                 friendshipToDelete = friendRequests;
             }
         }
-        return Optional.ofNullable(friendshipToDelete);    }
+
+        return Optional.ofNullable(friendshipToDelete);
+    }
 
     @Override
     public Optional<FriendRequests> update(FriendRequests entity) {
         if(entity == null)
             throw new IllegalArgumentException("entity must be not null!");
         validator.validate(entity);
+
         String sql = "update friend_requests set date = ?, status = ? where id1 = ? and  id2 = ? ";
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -139,10 +139,15 @@ public class FriendRequestsDBRepository implements Repository<Tuple<Long, Long>,
             ps.setLong(4, entity.getId().getE2());
             if( ps.executeUpdate() > 0 )
                 return Optional.empty();
-            return Optional.ofNullable(entity);
+            return Optional.of(entity);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
+    }
+
+    @Override
+    public Optional<FriendRequests> findByEmail(String email) {
         return Optional.empty();
     }
 }

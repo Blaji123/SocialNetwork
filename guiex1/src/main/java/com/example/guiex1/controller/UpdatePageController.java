@@ -2,7 +2,9 @@ package com.example.guiex1.controller;
 
 import com.example.guiex1.domain.User;
 import com.example.guiex1.domain.validators.ValidationException;
+import com.example.guiex1.services.FriendshipRequestService;
 import com.example.guiex1.services.FriendshipService;
+import com.example.guiex1.services.MessageService;
 import com.example.guiex1.services.UserService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,44 +24,38 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class UpdatePageController {
-
     @FXML
     private ImageView profilePhoto;
-
     @FXML
     private TextField firstNameField;
-
     @FXML
     private TextField lastNameField;
-
     @FXML
     private TextField emailField;
-
     @FXML
     private Button updateButton;
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button deleteButton;
 
     private UserService userService;
     private User currentUser;
     private FriendshipService friendshipService;
+    private MessageService messageService;
+    private FriendshipRequestService friendshipRequestService;
 
-    @FXML
-    private Button backButton;
-
-    @FXML
-    private Button deleteButton;
-
-    public void setFriendshipService(FriendshipService friendshipService) {
+    public void setServices(FriendshipService friendshipService, UserService userService, MessageService messageService, FriendshipRequestService friendshipRequestService) {
         this.friendshipService = friendshipService;
+        this.userService = userService;
+        this.messageService = messageService;
+        this.friendshipRequestService = friendshipRequestService;
     }
 
     public void setUser(User user) {
         this.currentUser = user;
         loadUserData();
         setProfileImage();
-    }
-
-    public void setUserService(UserService userService) {
-        this.userService = userService;
     }
 
     @FXML
@@ -72,15 +68,13 @@ public class UpdatePageController {
     }
 
     private void setProfileImage(){
-        Circle clip = new Circle(75, 75, 75); // Center x, y, radius
+        Circle clip = new Circle(75, 75, 75);
         profilePhoto.setClip(clip);
-        // Set a default placeholder image (optional)
         profilePhoto.setImage(new Image(new ByteArrayInputStream(currentUser.getPhoto())));
     }
 
     @FXML
     private void handleChangeProfilePhoto() {
-        // Open a FileChooser for selecting a new photo
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Profile Photo");
         fileChooser.getExtensionFilters().addAll(
@@ -90,40 +84,16 @@ public class UpdatePageController {
         File selectedFile = fileChooser.showOpenDialog(profilePhoto.getScene().getWindow());
         if (selectedFile != null) {
             try {
-                // Convert the selected file to a byte array
                 byte[] photoBytes = java.nio.file.Files.readAllBytes(selectedFile.toPath());
-
-                // Update the profile photo in the UI
                 Image newPhoto = new Image(selectedFile.toURI().toString());
                 profilePhoto.setImage(newPhoto);
-
-                // Set the new photo bytes in the currentUser object (adjust this to your user model)
                 currentUser.setPhoto(photoBytes);
-
-                // Save the updated user to the database
                 userService.updateUser(currentUser);
-
-                // Reapply the circular clipping to the new photo
                 Circle clip = new Circle(75, 75, 75);
                 profilePhoto.setClip(clip);
             } catch (IOException e) {
-                e.printStackTrace(); // Log the error or show a user-friendly message
+                e.printStackTrace();
             }
-        }
-    }
-
-
-
-    private void setBackArrow() {
-        try{
-            backButton.setPrefSize(50, 50);
-            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/guiex1/images/backArrow.png")));
-            ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(50);
-            imageView.setPreserveRatio(true);
-            backButton.setGraphic(imageView);
-        }catch (Exception ex){
-            System.out.println(ex.getMessage());
         }
     }
 
@@ -134,16 +104,10 @@ public class UpdatePageController {
     }
 
     private void confirmAndDeleteUser() {
-        // Show confirmation dialog
         if (MessageAlert.showConfirmation("Delete Account", "Are you sure you want to delete your account?")) {
             userService.deleteUser(currentUser.getId());
             navigateToLoginPage();
         }
-    }
-
-    private void navigateToLoginPage() {
-        Stage stage = (Stage) backButton.getScene().getWindow();
-        stage.close();
     }
 
     private void handleUpdate() {
@@ -156,15 +120,16 @@ public class UpdatePageController {
             currentUser.setLastName(updatedLastName);
             currentUser.setEmail(updatedEmail);
 
-            // Call the service to update user information
             userService.updateUser(currentUser);
-
-            // Return to the friends page (navigation can be optional if this is part of your flow)
             goToFriendsPage();
         } catch (ValidationException ex) {
-            // Display error message
             MessageAlert.showErrorMessage((Stage) updateButton.getScene().getWindow(), ex.getMessage());
         }
+    }
+
+    private void navigateToLoginPage() {
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.close();
     }
 
     private void goToFriendsPage() {
@@ -172,14 +137,13 @@ public class UpdatePageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/friends-page-view.fxml"));
             Parent friendsPage = loader.load();
             FriendsPageController friendsPageController = loader.getController();
-            friendsPageController.setUserService(userService);
-            friendsPageController.setFriendshipService(friendshipService);
+            friendsPageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             friendsPageController.setUser(currentUser);
             Scene scene = new Scene(friendsPage, 1200, 900);
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(scene);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

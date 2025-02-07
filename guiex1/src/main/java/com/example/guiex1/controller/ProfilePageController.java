@@ -1,7 +1,9 @@
 package com.example.guiex1.controller;
 
 import com.example.guiex1.domain.User;
+import com.example.guiex1.services.FriendshipRequestService;
 import com.example.guiex1.services.FriendshipService;
+import com.example.guiex1.services.MessageService;
 import com.example.guiex1.services.UserService;
 import com.example.guiex1.utils.events.UserEntityChangeEvent;
 import com.example.guiex1.utils.observer.Observer;
@@ -22,25 +24,18 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class ProfilePageController implements Observer<UserEntityChangeEvent>, Observer2 {
-
     @FXML
     private ImageView userPhoto;
-
     @FXML
     private Label userNameLabel;
-
     @FXML
     private Label postsCountLabel;
-
     @FXML
     private Label friendsCountLabel;
-
     @FXML
     private Button backButton;
-
     @FXML
     private ImageView noPostsImage;
-
     @FXML
     private Button dynamicButton;
 
@@ -48,6 +43,19 @@ public class ProfilePageController implements Observer<UserEntityChangeEvent>, O
     private User currentUser;
     private UserService userService;
     private FriendshipService friendshipService;
+    private MessageService messageService;
+    private FriendshipRequestService friendshipRequestService;
+
+    public void setServices(FriendshipService friendshipService, UserService userService, MessageService messageService, FriendshipRequestService friendshipRequestService) {
+        this.friendshipService = friendshipService;
+        this.userService = userService;
+        this.messageService = messageService;
+        this.friendshipRequestService = friendshipRequestService;
+        this.userService.addObserver(this);
+        this.friendshipService.addObserver(this);
+        this.friendshipRequestService.addObserver(this);
+        updateProfileDetails();
+    }
 
     public void setTargetUser(User targetUser) {
         this.targetUser = targetUser;
@@ -59,20 +67,8 @@ public class ProfilePageController implements Observer<UserEntityChangeEvent>, O
         this.currentUser = currentUser;
     }
 
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-        userService.addObserver(this);
-    }
-
-    public void setFriendshipService(FriendshipService friendshipService) {
-        this.friendshipService = friendshipService;
-        updateProfileDetails();
-        friendshipService.addObserver(this);
-    }
-
     @FXML
     public void initialize() {
-//        setBackArrow();
         setNoPostsImage();
         setupActions();
     }
@@ -121,8 +117,7 @@ public class ProfilePageController implements Observer<UserEntityChangeEvent>, O
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/update-page-view.fxml"));
             Parent updatePage = loader.load();
             UpdatePageController updatePageController = loader.getController();
-            updatePageController.setUserService(userService);
-            updatePageController.setFriendshipService(friendshipService);
+            updatePageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             updatePageController.setUser(currentUser);
             Scene scene = new Scene(updatePage, 1200, 900);
             Stage stage = (Stage) dynamicButton.getScene().getWindow();
@@ -137,8 +132,7 @@ public class ProfilePageController implements Observer<UserEntityChangeEvent>, O
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/message-page-view.fxml"));
             Parent messagePage = loader.load();
             MessagePageController messagePageController = loader.getController();
-            messagePageController.setUserService(userService);
-            messagePageController.setFriendshipService(friendshipService);
+            messagePageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             messagePageController.setCurrentUser(currentUser);
             Scene scene = new Scene(messagePage, 1200, 900);
             Stage stage = (Stage) dynamicButton.getScene().getWindow();
@@ -150,37 +144,19 @@ public class ProfilePageController implements Observer<UserEntityChangeEvent>, O
 
     private void updateProfileDetails() {
         if (targetUser != null) {
-            // Set user photo
             byte[] photoBytes = targetUser.getPhoto();
             Circle circle = new Circle(75, 75, 75);
             userPhoto.setImage(new Image(new ByteArrayInputStream(photoBytes)));
             userPhoto.setClip(circle);
-            // Set user name
             userNameLabel.setText(targetUser.getFirstName() + " " + targetUser.getLastName());
-
-            // Set posts count (hardcoded for now)
             postsCountLabel.setText("Posts: 0");
 
-            // Set friends count
             if (friendshipService != null) {
                 int friendsCount = friendshipService.getFriendsForUser(targetUser).size();
                 friendsCountLabel.setText("Friends: " + friendsCount);
             }
         }
     }
-
-//    private void setBackArrow() {
-//        try {
-//            backButton.setPrefSize(50, 50);
-//            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/guiex1/images/back-arrows.png")));
-//            ImageView imageView = new ImageView(image);
-//            imageView.setFitHeight(50);
-//            imageView.setPreserveRatio(true);
-//            backButton.setGraphic(imageView);
-//        } catch (Exception ex) {
-//            System.out.println("Failed to load back arrow: " + ex.getMessage());
-//        }
-//    }
 
     private void setupActions() {
         backButton.setOnAction(event -> navigateToFriendsPage());
@@ -191,8 +167,7 @@ public class ProfilePageController implements Observer<UserEntityChangeEvent>, O
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/friends-page-view.fxml"));
             Parent friendsPage = loader.load();
             FriendsPageController friendsPageController = loader.getController();
-            friendsPageController.setUserService(userService);
-            friendsPageController.setFriendshipService(friendshipService);
+            friendsPageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             friendsPageController.setUser(currentUser);
             Scene scene = new Scene(friendsPage, 1200, 900);
             Stage stage = (Stage) backButton.getScene().getWindow();

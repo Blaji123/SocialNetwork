@@ -2,12 +2,6 @@ package com.example.guiex1.domain;
 
 import java.util.Objects;
 
-
-/**
- * Define a Tuple o generic type entities
- * @param <E1> - tuple first entity type
- * @param <E2> - tuple second entity type
- */
 public class Tuple<E1, E2> {
     private E1 e1;
     private E2 e2;
@@ -36,7 +30,7 @@ public class Tuple<E1, E2> {
 
     @Override
     public String toString() {
-        return "" + e1 + "," + e2;
+        return e1 + "," + e2;
 
     }
 

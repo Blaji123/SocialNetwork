@@ -9,6 +9,9 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextArea?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.Region?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.guiex1.controller.MessagePageController"
             prefWidth="1200" prefHeight="900"
@@ -18,17 +21,34 @@
     <left>
         <VBox fx:id="friendsListContainer" styleClass="friends-list">
             <Label text="Friends" styleClass="list-title"/>
-            <ListView fx:id="friendsListView" styleClass="list-view"/>
+            <ListView fx:id="friendsListView" styleClass="list-view">
+                <cellFactory>
+                    <fx:define>
+                        <HBox spacing="10">
+                            <ImageView fx:id="profilePicture" fitHeight="40" fitWidth="40" preserveRatio="true"/>
+                            <Label fx:id="friendName" style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+                        </HBox>
+                    </fx:define>
+                </cellFactory>
+            </ListView>
         </VBox>
     </left>
 
     <!-- Center - Messages -->
     <center>
-        <VBox fx:id="messagesContainer" spacing="15" styleClass="messages-area">
-            <Label fx:id="chatTitle" text="Chat with..." styleClass="chat-title"/>
-            <ListView fx:id="messagesListView" styleClass="messages-list"/>
-            <HBox spacing="10" styleClass="message-input">
-                <TextField fx:id="messageField" promptText="Type your message..." />
+        <VBox fx:id="messagesContainer" styleClass="messages-area">
+            <HBox spacing="10" styleClass="chat-header">
+                <ImageView fx:id="selectedUserImage" fitHeight="40" fitWidth="40" preserveRatio="true"/>
+                <Label fx:id="chatTitle" text="Chat with ..." styleClass="chat-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="messages-scroll">
+                <ListView fx:id="messagesListView" styleClass="messages-list"/>
+            </ScrollPane>
+
+            <HBox spacing="5" styleClass="message-input">
+                <TextField fx:id="messageField" promptText="Type a message..." HBox.hgrow="ALWAYS"/>
                 <Button fx:id="sendButton" text="Send" styleClass="send-button"/>
             </HBox>
         </VBox>

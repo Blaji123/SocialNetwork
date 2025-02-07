@@ -4,31 +4,29 @@ import java.time.LocalDateTime;
 
 public class FriendRequests extends Entity<Tuple<Long, Long>> {
     private LocalDateTime date = LocalDateTime.now();
-    private FriendshipStatus status = FriendshipStatus.Pending;
+    private FriendshipRequestStatus status = FriendshipRequestStatus.Pending;
+
+    public FriendRequests() {
+    }
+
+    public FriendRequests(LocalDateTime date, FriendshipRequestStatus status) {
+        this.date = date;
+        this.status = status;
+    }
 
     public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
-    public void setStatus(FriendshipStatus status) {
+    public void setStatus(FriendshipRequestStatus status) {
         this.status = status;
     }
 
-    public FriendshipStatus getStatus() {
+    public FriendshipRequestStatus getStatus() {
         return status;
     }
 
     public LocalDateTime getDate() {
         return date;
     }
-
-
-    public FriendRequests() {
-    }
-
-    public FriendRequests(LocalDateTime date, FriendshipStatus status) {
-        this.date = date;
-        this.status = status;
-    }
-
 }

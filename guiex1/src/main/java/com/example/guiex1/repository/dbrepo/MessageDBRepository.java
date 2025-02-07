@@ -3,7 +3,6 @@ package com.example.guiex1.repository.dbrepo;
 import com.example.guiex1.domain.Message;
 import com.example.guiex1.domain.MessageType;
 import com.example.guiex1.domain.User;
-import com.example.guiex1.domain.validators.Validator;
 import com.example.guiex1.repository.Repository;
 
 import java.io.IOException;
@@ -17,10 +16,9 @@ public class MessageDBRepository implements Repository<Long, Message> {
     private String url;
     private String username;
     private String password;
-    private Validator validator;
     private Repository<Long, User> userRepository;
 
-    public MessageDBRepository(Validator validator, Repository<Long, User> userRepository) {
+    public MessageDBRepository(Repository<Long, User> userRepository) {
         try(InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")){
             Properties prop = new Properties();
             if(input == null){
@@ -32,9 +30,8 @@ public class MessageDBRepository implements Repository<Long, Message> {
             this.username = prop.getProperty("db.username");
             this.password = prop.getProperty("db.password");
         }catch (IOException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        this.validator = validator;
         this.userRepository = userRepository;
     }
 
@@ -56,19 +53,20 @@ public class MessageDBRepository implements Repository<Long, Message> {
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
+
         return Optional.empty();
     }
 
     @Override
-    public Optional<Message> findOne(Long aLong) {
-        Message msg = null;
-        if(findOneNoReply(aLong).isPresent()){
-            msg = findOneNoReply(aLong).get();
+    public Optional<Message> findOne(Long id) {
+        Message msg;
+        if(findOneNoReply(id).isPresent()){
+            msg = findOneNoReply(id).get();
         }else return Optional.empty();
 
         try(Connection connection = DriverManager.getConnection(url, username, password);
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM messages WHERE id = ?")){
-            statement.setLong(1, aLong);
+            statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             Long reply_id = resultSet.getLong("result_id");
             if(!resultSet.next()){
@@ -83,11 +81,7 @@ public class MessageDBRepository implements Repository<Long, Message> {
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
-        return Optional.empty();
-    }
 
-    @Override
-    public Optional<Message> findByEmail(String email) {
         return Optional.empty();
     }
 
@@ -104,7 +98,6 @@ public class MessageDBRepository implements Repository<Long, Message> {
                 Long to_id = resultSet.getLong("to_id");
                 LocalDateTime date = resultSet.getTimestamp("date").toLocalDateTime();
                 String message = resultSet.getString("message");
-                Long reply_id = resultSet.getLong("reply_id");
                 User from = userRepository.findOne(from_id).get();
                 List<User> to = Collections.singletonList(userRepository.findOne(to_id).get());
                 MessageType type = MessageType.valueOf(resultSet.getString("type"));
@@ -165,5 +158,10 @@ public class MessageDBRepository implements Repository<Long, Message> {
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Optional<Message> findByEmail(String email) {
+        return Optional.empty();
     }
 }

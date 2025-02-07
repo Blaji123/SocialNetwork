@@ -1,8 +1,8 @@
 package com.example.guiex1.repository.paging;
 
 public class Pageable {
-    private int pageNumber;
-    private int pageSize;
+    private final int pageNumber;
+    private final int pageSize;
 
     public Pageable(int pageNumber, int pageSize) {
         this.pageNumber = pageNumber;

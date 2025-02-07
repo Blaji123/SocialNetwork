@@ -2,8 +2,13 @@ package com.example.guiex1.controller;
 
 import com.example.guiex1.domain.Message;
 import com.example.guiex1.domain.User;
+import com.example.guiex1.services.FriendshipRequestService;
 import com.example.guiex1.services.FriendshipService;
+import com.example.guiex1.services.MessageService;
 import com.example.guiex1.services.UserService;
+import com.example.guiex1.utils.events.Event;
+import com.example.guiex1.utils.events.UserEntityChangeEvent;
+import com.example.guiex1.utils.observer.Observer;
 import com.example.guiex1.utils.observer.Observer2;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,17 +27,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class NotificationPageController implements Observer2 {
-
+public class NotificationPageController implements Observer2, Observer<UserEntityChangeEvent> {
     @FXML
     private TableView<Message> notificationTable;
-
     @FXML
     private TableColumn<Message, String> messageColumn;
-
     @FXML
     private TableColumn<Message, String> dateColumn;
-
     @FXML
     private javafx.scene.control.Button backButton;
 
@@ -40,21 +41,32 @@ public class NotificationPageController implements Observer2 {
     private FriendshipService friendshipService;
     private User user;
     private ObservableList<Message> notificationObservableList = FXCollections.observableArrayList();
+    private MessageService messageService;
+    private FriendshipRequestService friendshipRequestService;
+
+    public void setServices(FriendshipService friendshipService, UserService userService, MessageService messageService, FriendshipRequestService friendshipRequestService) {
+        this.friendshipService = friendshipService;
+        this.userService = userService;
+        this.messageService = messageService;
+        this.friendshipRequestService = friendshipRequestService;
+        this.messageService.addObserver(this);
+        this.friendshipService.addObserver(this);
+        this.friendshipRequestService.addObserver(this);
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        loadNotifications();
+    }
 
     public void initialize() {
-        // Configure table columns
         setupTableColumns();
         setBackArrow();
-
-        // Bind data to the table
         notificationTable.setItems(notificationObservableList);
-
-        // Set back button action
         backButton.setOnAction(event -> goBack());
     }
 
     private void setupTableColumns() {
-        // Set cell value factories for columns
         messageColumn.setCellValueFactory(new PropertyValueFactory<>("message"));
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
     }
@@ -72,25 +84,8 @@ public class NotificationPageController implements Observer2 {
         }
     }
 
-    public void setFriendshipService(FriendshipService friendshipService) {
-        this.friendshipService = friendshipService;
-        friendshipService.addObserver(this);
-    }
-
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-        loadNotifications(); // Load notifications for the user
-    }
-
-    /**
-     * Loads notifications from the service and updates the UI.
-     */
     private void loadNotifications() {
-        List<Message> notifications = userService.getNotifications(user.getId());
+        List<Message> notifications = messageService.getNotifications(user.getId());
         notificationObservableList.setAll(notifications);
     }
 
@@ -99,8 +94,7 @@ public class NotificationPageController implements Observer2 {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/guiex1/views/friends-page-view.fxml"));
             Parent friendsPage = loader.load();
             FriendsPageController friendsPageController = loader.getController();
-            friendsPageController.setUserService(userService);
-            friendsPageController.setFriendshipService(friendshipService);
+            friendsPageController.setServices(friendshipService, userService, messageService, friendshipRequestService);
             friendsPageController.setUser(user);
             Scene scene = new Scene(friendsPage, 1200, 900);
             Stage stage = (Stage) backButton.getScene().getWindow();
@@ -112,6 +106,11 @@ public class NotificationPageController implements Observer2 {
 
     @Override
     public void update() {
-        loadNotifications(); // Reload notifications on update
+        loadNotifications();
+    }
+
+    @Override
+    public void update(UserEntityChangeEvent userEntityChangeEvent) {
+        loadNotifications();
     }
 }

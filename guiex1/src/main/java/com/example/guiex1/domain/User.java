@@ -1,6 +1,5 @@
 package com.example.guiex1.domain;
 
-import java.util.List;
 import java.util.Objects;
 
 public class User extends Entity<Long>{
@@ -9,6 +8,26 @@ public class User extends Entity<Long>{
     private String email;
     private String password;
     private byte[] photo;
+
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
+
+    public User(String firstName, String lastName, String email, String password, byte[] photo) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.photo = photo;
+    }
+
+    public User(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
     public byte[] getPhoto() {
         return photo;
@@ -32,27 +51,6 @@ public class User extends Entity<Long>{
 
     public String getPassword() {
         return password;
-    }
-
-    public User(String firstName, String lastName, String email, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-    }
-
-    public User(String firstName, String lastName, String email, String password, byte[] photo) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.photo = photo;
-    }
-
-    public User(){}
-    public User(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
     }
 
     public String getFirstName() {
@@ -82,8 +80,7 @@ public class User extends Entity<Long>{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        User that = (User) o;
+        if (!(o instanceof User that)) return false;
         return getId().equals(that.getId());
     }
 

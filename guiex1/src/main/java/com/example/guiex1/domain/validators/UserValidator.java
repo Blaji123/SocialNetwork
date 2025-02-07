@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 public class UserValidator implements Validator<User> {
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(com|net|org|edu|gov|io|co|info|me|biz)$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+
     @Override
     public void validate(User entity) throws ValidationException {
         String errorMessage = "";

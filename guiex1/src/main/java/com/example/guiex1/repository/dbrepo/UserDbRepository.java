@@ -1,13 +1,11 @@
 package com.example.guiex1.repository.dbrepo;
 
-import com.example.guiex1.domain.Friendship;
 import com.example.guiex1.domain.User;
 import com.example.guiex1.domain.validators.Validator;
 import com.example.guiex1.repository.Repository;
 
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -25,23 +23,20 @@ public class UserDbRepository implements Repository<Long, User> {
         this.validator = validator;
     }
 
-    /**
-     * @param id - long, the id of a user to found
-     * @return Optional<User> - the user with the given id
-     *                        -Optional.empty() otherwise
-     */
     @Override
     public Optional<User> findOne(Long id) {
         User user;
+
         try(Connection connection = DriverManager.getConnection(url, username, password);
             ResultSet resultSet = connection.createStatement().executeQuery(String.format("select * from users U where U.id = '%d'", id))) {
             if(resultSet.next()){
                 user = createUserFromResultSet(resultSet);
-                return Optional.ofNullable(user);
+                return Optional.of(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
         return Optional.empty();
     }
 
@@ -49,7 +44,7 @@ public class UserDbRepository implements Repository<Long, User> {
     public Optional<User> findByEmail(String email) {
         User user = null;
         try(Connection connection = DriverManager.getConnection(url, username, password);
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE email = ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE email = ?")
         ){
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
@@ -57,7 +52,7 @@ public class UserDbRepository implements Repository<Long, User> {
                 user = createUserFromResultSet(resultSet);
             }
         }catch (SQLException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return Optional.ofNullable(user);
     }
@@ -66,17 +61,16 @@ public class UserDbRepository implements Repository<Long, User> {
         try {
             String firstName = resultSet.getString("first_name");
             String lastName = resultSet.getString("last_name");
-
-            Long idd = resultSet.getLong("id");
-
+            Long id = resultSet.getLong("id");
             String email = resultSet.getString("email");
             String password = resultSet.getString("password");
             byte[] photo = resultSet.getBytes("photo");
+
             User user = new User(firstName, lastName, email, password, photo);
-            user.setId(idd);
+            user.setId(id);
             return user;
         } catch (SQLException e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -86,7 +80,6 @@ public class UserDbRepository implements Repository<Long, User> {
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement statement = connection.prepareStatement("SELECT * from users");
              ResultSet resultSet = statement.executeQuery()) {
-
             while (resultSet.next()) {
                 Long id = resultSet.getLong("id");
                 String firstName = resultSet.getString("first_name");
@@ -101,9 +94,8 @@ public class UserDbRepository implements Repository<Long, User> {
             }
             return users;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return users;
     }
 
     @Override
@@ -121,7 +113,6 @@ public class UserDbRepository implements Repository<Long, User> {
 
             ps.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
             return Optional.ofNullable(entity);
         }
         return Optional.empty();
@@ -133,15 +124,14 @@ public class UserDbRepository implements Repository<Long, User> {
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement ps = connection.prepareStatement(sql)) {
             Optional<User> user = findOne(id);
-            if(!user.isEmpty()) {
+            if(user.isPresent()) {
                 ps.setLong(1, id);
                 ps.executeUpdate();
             }
             return user;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return Optional.empty();
     }
 
     @Override
@@ -159,10 +149,9 @@ public class UserDbRepository implements Repository<Long, User> {
             ps.setLong(5, user.getId());
             if( ps.executeUpdate() > 0 )
                 return Optional.empty();
-            return Optional.ofNullable(user);
+            return Optional.of(user);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return Optional.empty();
     }
 }
